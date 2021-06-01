@@ -49,10 +49,10 @@ class WalkingEnv(BaseEnv):
 
     def _get_reward(self):
         costs = np.array([
-            self._joints_at_limit_cost(),
+            # self._joints_at_limit_cost(),
             # self._standing_reward(),
             self._progress_reward(),
-            self._torque_cost()
+            # self._torque_cost()
         ])
         done = self._check_done()
         return (costs.sum(), done) if not done \

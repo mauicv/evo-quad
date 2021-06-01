@@ -1,13 +1,11 @@
-from dataclasses import dataclass
 import numpy as np
-from numpy import ndarray
 
 
-@dataclass
 class Box:
-    shape: int
-    high: ndarray
-    low: ndarray
+    def __init__(self, shape, high, low):
+        self.shape = shape
+        self.high = high
+        self.low = low
 
     def sample(self):
         return np.clip(np.random.normal(0, 0.01, size=(self.shape)), -1, 1) \

@@ -13,6 +13,7 @@ from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
+from gerel.util.activations import build_leaky_relu
 
 from src.training.batch import BatchJob
 from src.training.stream_redirect import RedirectAllOutput
@@ -25,7 +26,7 @@ ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
 STEPS = 200
-LAYER_DIMS = [3, 3]
+LAYER_DIMS = [20, 20]
 BATCH_SIZE = 25
 
 batch_job = BatchJob()
@@ -37,7 +38,8 @@ def compute_fitness(genomes):
             RedirectAllOutput(sys.stderr, file=os.devnull):
         envs = [WalkingEnv(ENV_NAME, var=0, vis=False)
                 for _ in range(len(genomes))]
-        models = [Model(genome) for genome in genomes]
+        leaky_relu = build_leaky_relu()
+        models = [Model(genome, activation=leaky_relu) for genome in genomes]
         dones = [False for _ in range(len(genomes))]
         states = [np.array(env.current_state, dtype='float32') for env in envs]
         rewards = [0 for _ in range(len(genomes))]
@@ -47,7 +49,7 @@ def compute_fitness(genomes):
                 if done:
                     continue
 
-                action = model(state)
+                action = np.array(model(state))/6
                 action = action_map(action)
                 next_state, reward, done, _ = env.step(action)
                 rewards[index] += reward

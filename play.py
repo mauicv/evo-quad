@@ -1,29 +1,19 @@
 import os
-from gerel.util.datastore import DataStore
-from gerel.model.model import Model
 import click
 import time
+import numpy as np
+
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
-from gerel.genome.factories import dense, from_genes
-
-import numpy as np
-# import pybullet_envs  # noqa
-from src.environment.walking_env import WalkingEnv
 from src.environment.group_env import GroupEnv
 
-import datetime
-
-from gerel.algorithms.RES.population import RESPopulation
-from gerel.algorithms.RES.mutator import RESMutator
-from gerel.populations.genome_seeders import curry_genome_seeder
-from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-
-from src.training.batch import BatchJob
-from src.training.stream_redirect import RedirectAllOutput
-from src.training.mappings import action_map
+from gerel.algorithms.RES.population import RESPopulation
+from gerel.genome.factories import from_genes
+from gerel.algorithms.RES.mutator import RESMutator
+from gerel.populations.genome_seeders import curry_genome_seeder
+from gerel.util.activations import build_leaky_relu
 
 STATE_DIMS = 51
 ACTION_DIMS = 12
@@ -39,7 +29,8 @@ STEPS = 1000
 
 def play(genome, steps=STEPS):
     done = False
-    model = Model(genome)
+    leaky_relu = build_leaky_relu()
+    model = Model(genome, activation=leaky_relu)
     env = WalkingEnv(ENV_NAME, var=0, vis=True)
     state = env.current_state
     rewards = 0
@@ -47,7 +38,7 @@ def play(genome, steps=STEPS):
     while not done and i < STEPS:
         i += 1
         time.sleep(0.007)
-        action = model(state)
+        action = np.array(model(state))/6
         action = action_map(action)
         next_state, reward, done, _ = env.step(action)
         rewards += reward
@@ -56,7 +47,9 @@ def play(genome, steps=STEPS):
 
 
 def play_population(population, steps=STEPS):
-    models = [Model(genome.to_reduced_repr) for genome in population.genomes]
+    leaky_relu = build_leaky_relu()
+    models = [Model(genome.to_reduced_repr, activation=leaky_relu)
+              for genome in population.genomes]
     env = GroupEnv(ENV_NAME, vis=True)
     for x in range(-3, 3, 2):
         for y in range(-3, 3, 2):
