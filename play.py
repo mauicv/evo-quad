@@ -13,14 +13,14 @@ from gerel.algorithms.RES.population import RESPopulation
 from gerel.genome.factories import from_genes
 from gerel.algorithms.RES.mutator import RESMutator
 from gerel.populations.genome_seeders import curry_genome_seeder
-from gerel.util.activations import build_leaky_relu
+from gerel.util.activations import build_leaky_relu, build_sigmoid
 
 STATE_DIMS = 51
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
 STEPS = 200
-LAYER_DIMS = [3, 3]
+LAYER_DIMS = [20, 20]
 BATCH_SIZE = 25
 DIR = './data/default/'
 ENV_NAME = 'walking-quadruped'
@@ -29,8 +29,8 @@ STEPS = 1000
 
 def play(genome, steps=STEPS):
     done = False
-    leaky_relu = build_leaky_relu()
-    model = Model(genome, activation=leaky_relu)
+    sigmoid = build_sigmoid()
+    model = Model(genome, activation=sigmoid)
     env = WalkingEnv(ENV_NAME, var=0, vis=True)
     state = env.current_state
     rewards = 0
@@ -47,8 +47,9 @@ def play(genome, steps=STEPS):
 
 
 def play_population(population, steps=STEPS):
-    leaky_relu = build_leaky_relu()
-    models = [Model(genome.to_reduced_repr, activation=leaky_relu)
+    sigmoid = build_sigmoid()
+    models = [Model(genome.to_reduced_repr,
+                    activation=sigmoid)
               for genome in population.genomes]
     env = GroupEnv(ENV_NAME, vis=True)
     for x in range(-3, 3, 2):
@@ -110,8 +111,6 @@ def play_gen(steps, generation, dir):
         nodes, edges,
         input_size=input_num,
         output_size=output_num,
-        weight_low=-2,
-        weight_high=2,
         depth=len(LAYER_DIMS))
 
     init_mu = np.array(genome.weights)

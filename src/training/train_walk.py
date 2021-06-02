@@ -13,7 +13,7 @@ from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-from gerel.util.activations import build_leaky_relu
+from gerel.util.activations import build_leaky_relu, build_sigmoid
 
 from src.training.batch import BatchJob
 from src.training.stream_redirect import RedirectAllOutput
@@ -38,8 +38,8 @@ def compute_fitness(genomes):
             RedirectAllOutput(sys.stderr, file=os.devnull):
         envs = [WalkingEnv(ENV_NAME, var=0, vis=False)
                 for _ in range(len(genomes))]
-        leaky_relu = build_leaky_relu()
-        models = [Model(genome, activation=leaky_relu) for genome in genomes]
+        sigmoid = build_sigmoid(c=10)
+        models = [Model(genome, activation=sigmoid) for genome in genomes]
         dones = [False for _ in range(len(genomes))]
         states = [np.array(env.current_state, dtype='float32') for env in envs]
         rewards = [0 for _ in range(len(genomes))]
@@ -106,8 +106,6 @@ def train_walk(dir):
             nodes, edges,
             input_size=input_num,
             output_size=output_num,
-            weight_low=-2,
-            weight_high=2,
             depth=len(LAYER_DIMS))
         next_gen = last_gen_ind + 1
         print(f'seeding generation {next_gen} with last best genome: {genome}')
@@ -115,7 +113,9 @@ def train_walk(dir):
         genome = dense(
             input_size=STATE_DIMS,
             output_size=ACTION_DIMS,
-            layer_dims=LAYER_DIMS
+            layer_dims=LAYER_DIMS,
+            weight_low=-1.5,
+            weight_high=1.5
         )
         print(f'seeding generation 0, with  genome: {genome}')
 
