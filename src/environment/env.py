@@ -82,6 +82,9 @@ class BaseEnv:
             [0, 0, 0],
             slope)
 
+        self.client.changeDynamics(
+            self.plane_id, -1, lateralFriction=1, restitution=0)
+
         robot_start_pos = [0, 0, 0.25]
         robot_start_orientation = self.client.getQuaternionFromEuler([0, 0, 0])
         self.robot_id = self.client.loadURDF(
@@ -98,6 +101,8 @@ class BaseEnv:
         self.hip_joints = set(3*i + 1 for i in range(4))
         self.knee_joints = set(3*i + 2 for i in range(4))
 
+        self.client.changeDynamics(
+            self.robot_id, -1, lateralFriction=1, restitution=0)
         return state
 
     def take_action(self, actions):

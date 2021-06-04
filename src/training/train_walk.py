@@ -57,7 +57,8 @@ def compute_fitness(genomes):
                 states[index] = next_state
 
         # Closing envs fixes memory leak:
-        for env in envs:
+        for env_i, env in enumerate(envs):
+            # rewards[env_i] = env.current_state[-1]
             env.close()
     return rewards
 

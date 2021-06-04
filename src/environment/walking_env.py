@@ -59,7 +59,7 @@ class WalkingEnv(BaseEnv):
             else (costs.sum() - GROUND_CONTACT_COST, done)
 
     def _progress_reward(self):
-        forwards_movement = self.current_state[-2] - self.last_state[-2]
+        forwards_movement = self.current_state[-3] - self.last_state[-3]
         return forwards_movement * REWARD_SCALE
 
     def _joints_at_limit_cost(self):
