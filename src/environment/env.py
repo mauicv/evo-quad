@@ -3,6 +3,7 @@ from datetime import datetime
 import numpy as np
 from numpy import float32, inf
 from src.environment.spaces import Box
+from math import sin, pi
 
 seed(datetime.now())
 
@@ -13,6 +14,7 @@ TORQUE_COST = 0.4
 STEP_ACTION_RATE = 5
 REWARD_SCALE = 10
 GROUND_CONTACT_COST = 100
+OSC_PERIOD = 200
 
 
 class BaseEnv:
@@ -34,6 +36,7 @@ class BaseEnv:
         self.client = bc.BulletClient(connection_mode=pybullet.GUI) if vis \
             else bc.BulletClient(connection_mode=pybullet.DIRECT)
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.i = 0
         self.reset()
         self.describe_space()
 
@@ -49,10 +52,10 @@ class BaseEnv:
             joint_upper_bounds.append(upper)
 
         obs_space_upper_bounds = joint_upper_bounds \
-            + [inf for _ in range(num_joints, len(all_state))]
+            + [inf for _ in range(num_joints, len(all_state))] + [1]
         obs_space_lower_bounds = joint_lower_bounds \
-            + [inf for _ in range(num_joints, len(all_state))]
-        self.observation_space = Box((len(obs_space_upper_bounds),),
+            + [inf for _ in range(num_joints, len(all_state))] + [1]
+        self.observation_space = Box((len(obs_space_upper_bounds) + 1,),
                                      obs_space_upper_bounds,
                                      obs_space_lower_bounds)
 
@@ -90,6 +93,11 @@ class BaseEnv:
         state = self._get_state()
         self.last_state = state
         self.current_state = state
+
+        self.shoulder_joints = set(3*i for i in range(4))
+        self.hip_joints = set(3*i + 1 for i in range(4))
+        self.knee_joints = set(3*i + 2 for i in range(4))
+
         return state
 
     def take_action(self, actions):
@@ -102,6 +110,7 @@ class BaseEnv:
                 force=maxForce)
 
     def step(self, actions):
+        self.i += 1
         self.last_state = self.current_state
         for _ in range(STEP_ACTION_RATE):
             self.take_action(actions)
@@ -121,7 +130,8 @@ class BaseEnv:
             *[self.client.getJointState(self.robot_id, i)[0]
               for i in range(self.client.getNumJoints(self.robot_id))],
             *[item for subls in state_ls for item in subls],
-            *base_link_state
+            *base_link_state,
+            sin(self.i*2*pi/OSC_PERIOD)*10
         ])
         return state
 

@@ -7,7 +7,7 @@ JOINT_AT_LIMIT_COST = 0.1
 TORQUE_COST = 0.4
 STEP_ACTION_RATE = 5
 REWARD_SCALE = 10
-GROUND_CONTACT_COST = 10
+GROUND_CONTACT_COST = 25
 
 
 class WalkingEnv(BaseEnv):
@@ -72,3 +72,14 @@ class WalkingEnv(BaseEnv):
             if joint_per_loc < 0.05 or joint_per_loc > 0.95:
                 count += 1
         return - count * JOINT_AT_LIMIT_COST
+
+    def take_action(self, actions):
+        for joint_i, action in enumerate(actions):
+            # limit to 4 shoulder joints
+            if joint_i in self.hip_joints or joint_i in self.knee_joints:
+                maxForce = 175
+                self.client.setJointMotorControl2(
+                    self.robot_id, joint_i,
+                    controlMode=self.client.POSITION_CONTROL,
+                    targetPosition=action,
+                    force=maxForce)

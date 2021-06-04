@@ -21,7 +21,7 @@ from src.training.mappings import action_map
 
 ENV_NAME = 'walking-quadruped'
 EPISODES = 100
-STATE_DIMS = 51
+STATE_DIMS = 51 + 1
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
@@ -123,7 +123,7 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=0.5,
+        std_dev=0.75,
         alpha=1
     )
 
