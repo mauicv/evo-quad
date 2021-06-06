@@ -42,7 +42,7 @@ def cli(debug):
 def deets():
     env, state_space_dim, action_space_dim, state_norm_array, min_action, \
         max_action = setup_env(var=0, vis=False)
-
+    print(len(env._get_state()))
     print('')
     print('--------------------')
     print('ENV_NAME: \t', env.name)

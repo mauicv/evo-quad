@@ -16,6 +16,33 @@ REWARD_SCALE = 10
 GROUND_CONTACT_COST = 100
 OSC_PERIOD = 200
 
+A_JOINTS = {
+    b'core_left_shoulder',
+    b'core_right_shoulder',
+    b'core_back_left_shoulder',
+    b'core_back_right_shoulder',
+}
+
+B_JOINTS = {
+    b'left_shoulder_left_leg_top',
+    b'right_shoulder_right_leg_top',
+    b'back_left_shoulder_back_right_leg_top',
+    b'back_right_shoulder_back_right_leg_top',
+}
+
+C_JOINTS = {
+    b'left_leg_top_left_leg_bottom',
+    b'right_leg_top_right_leg_bottom',
+    b'back_left_leg_top_back_left_leg_bottom',
+    b'back_right_leg_top_back_right_leg_bottom',
+}
+
+JOINTS = {*A_JOINTS, *B_JOINTS, *C_JOINTS}
+# b'left_leg_bottom_left_foot',
+# b'right_leg_bottom_right_foot',
+# b'back_left_leg_bottom_back_left_foot',
+# b'back_right_leg_bottom_back_right_foot'
+
 
 class BaseEnv:
     def __init__(
@@ -62,6 +89,7 @@ class BaseEnv:
         self.action_space = Box((num_joints, ),
                                 np.array(joint_upper_bounds, dtype=float32),
                                 np.array(joint_lower_bounds, dtype=float32))
+
         return self.current_state
 
     def reset(self):
@@ -82,31 +110,40 @@ class BaseEnv:
             [0, 0, 0],
             slope)
 
-        self.client.changeDynamics(
-            self.plane_id, -1, lateralFriction=1, restitution=0)
+        # self.client.changeDynamics(
+        #     self.plane_id, -1, lateralFriction=1, restitution=0)
 
-        robot_start_pos = [0, 0, 0.25]
+        robot_start_pos = [0, 0, 0.4]
         robot_start_orientation = self.client.getQuaternionFromEuler([0, 0, 0])
         self.robot_id = self.client.loadURDF(
             "src/environment/urdf/robot-simple.urdf",
             robot_start_pos,
             robot_start_orientation)
 
+        # create dictionary for each bodypart/joint
+        num_joints = self.client.getNumJoints(self.robot_id)
+        self.joints = {}
+        for joint_i in range(num_joints):
+            joint_data = self.client.getJointInfo(self.robot_id, joint_i)
+            self.joints[joint_data[1]] = joint_data[0]
+
+        self.shoulder_joints = set(self.joints[name] for name in A_JOINTS)
+        self.hip_joints = set(self.joints[name] for name in B_JOINTS)
+        self.knee_joints = set(self.joints[name] for name in C_JOINTS)
+
+        self.action_set = sorted([self.joints[name] for name in JOINTS])
+
         self.client.setGravity(0, 0, -10)
         state = self._get_state()
         self.last_state = state
         self.current_state = state
 
-        self.shoulder_joints = set(3*i for i in range(4))
-        self.hip_joints = set(3*i + 1 for i in range(4))
-        self.knee_joints = set(3*i + 2 for i in range(4))
-
-        self.client.changeDynamics(
-            self.robot_id, -1, lateralFriction=1, restitution=0)
+        # self.client.changeDynamics(
+        #     self.robot_id, -1, lateralFriction=1, restitution=0)
         return state
 
     def take_action(self, actions):
-        for joint_i, action in enumerate(actions):
+        for joint_i, action in zip(self.action_set, actions):
             maxForce = 175
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
@@ -128,12 +165,12 @@ class BaseEnv:
 
     def _get_state(self):
         state_ls = [self.client.getLinkState(self.robot_id, i)[0]
-                    for i in range(self.client.getNumJoints(self.robot_id))]
+                    for i in self.action_set]
         base_link_state = self.client \
             .getBasePositionAndOrientation(self.robot_id)[0]
         state = np.array([
             *[self.client.getJointState(self.robot_id, i)[0]
-              for i in range(self.client.getNumJoints(self.robot_id))],
+              for i in self.action_set],
             *[item for subls in state_ls for item in subls],
             *base_link_state,
             sin(self.i*2*pi/OSC_PERIOD)*10

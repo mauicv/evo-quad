@@ -20,14 +20,14 @@ from src.training.stream_redirect import RedirectAllOutput
 from src.training.mappings import action_map
 
 ENV_NAME = 'walking-quadruped'
-EPISODES = 100
-STATE_DIMS = 51 + 1
+EPISODES = 10000
+STATE_DIMS = 54
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
-STEPS = 200
+STEPS = 1000
 LAYER_DIMS = [20, 20]
-BATCH_SIZE = 25
+BATCH_SIZE = 50
 
 batch_job = BatchJob()
 
@@ -124,7 +124,7 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=0.75,
+        std_dev=1,
         alpha=1
     )
 

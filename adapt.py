@@ -15,7 +15,7 @@ import os
 import numpy as np
 
 DIR = './data/default/'
-STATE_DIMS = 51
+STATE_DIMS = 54
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398

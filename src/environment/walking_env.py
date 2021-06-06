@@ -7,7 +7,7 @@ JOINT_AT_LIMIT_COST = 0.1
 TORQUE_COST = 0.4
 STEP_ACTION_RATE = 5
 REWARD_SCALE = 10
-GROUND_CONTACT_COST = 25
+GROUND_CONTACT_COST = 100
 
 
 class WalkingEnv(BaseEnv):
@@ -49,7 +49,7 @@ class WalkingEnv(BaseEnv):
 
     def _get_reward(self):
         costs = np.array([
-            # self._joints_at_limit_cost(),
+            self._joints_at_limit_cost(),
             # self._standing_reward(),
             self._progress_reward(),
             # self._torque_cost()
@@ -74,8 +74,8 @@ class WalkingEnv(BaseEnv):
         return - count * JOINT_AT_LIMIT_COST
 
     def take_action(self, actions):
-        for joint_i, action in enumerate(actions):
-            # limit to 4 shoulder joints
+        for joint_i, action in zip(self.action_set, actions):
+            # restrict joints.
             if joint_i in self.hip_joints or joint_i in self.knee_joints:
                 maxForce = 175
                 self.client.setJointMotorControl2(
