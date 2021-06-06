@@ -144,7 +144,7 @@ class BaseEnv:
 
     def take_action(self, actions):
         for joint_i, action in zip(self.action_set, actions):
-            maxForce = 175
+            maxForce = 500
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
                 controlMode=self.client.POSITION_CONTROL,
