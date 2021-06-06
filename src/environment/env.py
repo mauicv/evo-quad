@@ -166,14 +166,14 @@ class BaseEnv:
     def _get_state(self):
         state_ls = [self.client.getLinkState(self.robot_id, i)[0]
                     for i in self.action_set]
-        base_link_state = self.client \
+        base_link_pos = self.client \
             .getBasePositionAndOrientation(self.robot_id)[0]
         state = np.array([
+            *base_link_pos,
+            sin(self.i*2*pi/OSC_PERIOD)*10,
             *[self.client.getJointState(self.robot_id, i)[0]
               for i in self.action_set],
             *[item for subls in state_ls for item in subls],
-            *base_link_state,
-            sin(self.i*2*pi/OSC_PERIOD)*10
         ])
         return state
 

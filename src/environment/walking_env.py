@@ -59,13 +59,13 @@ class WalkingEnv(BaseEnv):
             else (costs.sum() - GROUND_CONTACT_COST, done)
 
     def _progress_reward(self):
-        forwards_movement = self.current_state[-3] - self.last_state[-3]
+        forwards_movement = self.current_state[1] - self.last_state[1]
         return forwards_movement * REWARD_SCALE
 
     def _joints_at_limit_cost(self):
-        num_joints = self.client.getNumJoints(self.robot_id)
         count = 0
-        for joint_i, j_rad in enumerate(self.current_state[:num_joints]):
+        for joint_i in self.action_set:
+            j_rad = self.client.getJointState(self.robot_id, joint_i)[0]
             joint_per_loc = \
                 (j_rad + abs(self.observation_space.low[joint_i])) / \
                 self.observation_space.arc_sizes[joint_i]
