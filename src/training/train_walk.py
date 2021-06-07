@@ -25,9 +25,9 @@ STATE_DIMS = 54
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
-STEPS = 1000
+STEPS = 500
 LAYER_DIMS = [20, 20]
-BATCH_SIZE = 50
+BATCH_SIZE = 70
 
 batch_job = BatchJob()
 
@@ -115,8 +115,8 @@ def train_walk(dir):
             input_size=STATE_DIMS,
             output_size=ACTION_DIMS,
             layer_dims=LAYER_DIMS,
-            weight_low=-1.5,
-            weight_high=1.5
+            weight_low=-2,
+            weight_high=2
         )
         print(f'seeding generation 0, with  genome: {genome}')
 
@@ -124,7 +124,7 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=1,
+        std_dev=2.5,
         alpha=1
     )
 
@@ -134,7 +134,7 @@ def train_walk(dir):
     )
 
     population = RESPopulation(
-        population_size=250,
+        population_size=490,
         genome_seeder=seeder
     )
 

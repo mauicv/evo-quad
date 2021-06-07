@@ -79,13 +79,33 @@ def cli(debug):
               help='Generation to play')
 @click.option('--dir', '-d', default=DIR,
               help='working folder')
-def play_best(steps, generation, dir):
+@click.option('--mutate', '-m', default=0.5, type=float,
+              help='mutation rate')
+def best(steps, generation, dir, mutate):
     if not generation:
         generation = max([int(i) for i in os.listdir(dir)])
 
     ds = DataStore(name=dir)
     data = ds.load(generation)
-    rewards = play(data['best_genome'], steps)
+    nodes, edges = data['best_genome']
+    input_num = len([n for n in nodes if n[4] == 'input'])
+    output_num = len([n for n in nodes if n[4] == 'output'])
+    nodes = [n for n in nodes if n[4] == 'hidden']
+    genome = from_genes(
+        nodes, edges,
+        input_size=input_num,
+        output_size=output_num,
+        depth=len(LAYER_DIMS))
+
+    if mutate:
+        mutator = RESMutator(
+            initial_mu=genome.weights,
+            std_dev=mutate,
+            alpha=1
+        )
+        mutator(genome)
+
+    rewards = play(genome.to_reduced_repr, steps)
     print(f'generation: {generation}, rewards: {rewards}')
 
 
