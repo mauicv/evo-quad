@@ -124,7 +124,7 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=2.5,
+        std_dev=1.5,
         alpha=1
     )
 
