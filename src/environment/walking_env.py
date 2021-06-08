@@ -3,7 +3,7 @@ from src.environment.env import BaseEnv
 
 TARGET_LOC = np.array([0.0, 0.0, 0.18])
 TARGET_ORIENT = np.array([1, 1, 0])
-JOINT_AT_LIMIT_COST = 0.1
+JOINT_AT_LIMIT_COST = 0.01
 TORQUE_COST = 0.4
 STEP_ACTION_RATE = 5
 REWARD_SCALE = 10

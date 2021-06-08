@@ -79,7 +79,7 @@ def cli(debug):
               help='Generation to play')
 @click.option('--dir', '-d', default=DIR,
               help='working folder')
-@click.option('--mutate', '-m', default=0.5, type=float,
+@click.option('--mutate', '-m', default=0, type=float,
               help='mutation rate')
 def best(steps, generation, dir, mutate):
     if not generation:
@@ -101,7 +101,7 @@ def best(steps, generation, dir, mutate):
         mutator = RESMutator(
             initial_mu=genome.weights,
             std_dev=mutate,
-            alpha=1
+            alpha=0.5
         )
         mutator(genome)
 

@@ -27,7 +27,7 @@ MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
 STEPS = 500
 LAYER_DIMS = [20, 20]
-BATCH_SIZE = 70
+BATCH_SIZE = 30
 
 batch_job = BatchJob()
 
@@ -134,7 +134,7 @@ def train_walk(dir):
     )
 
     population = RESPopulation(
-        population_size=490,
+        population_size=300,
         genome_seeder=seeder
     )
 
