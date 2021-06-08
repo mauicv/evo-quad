@@ -21,7 +21,7 @@ from src.training.mappings import action_map
 
 ENV_NAME = 'walking-quadruped'
 EPISODES = 10000
-STATE_DIMS = 54
+STATE_DIMS = 27
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398

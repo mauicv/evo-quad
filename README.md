@@ -14,3 +14,5 @@ Couple of potential solutions:
 Other things:
   - [ ] Try different learning rates.
   - [ ] Try different oscillation rates.
+
+The behaviour of the model is very sensitive to the mutation rate. This means the improvements are likely to be very slow or very unstable.

@@ -1,9 +1,12 @@
+# https://github.com/openai/gym/issues/585#issuecomment-370015441
+
+
 from random import random, seed
 from datetime import datetime
 import numpy as np
 from numpy import float32, inf
 from src.environment.spaces import Box
-from math import sin, pi
+from math import sin, cos, pi
 
 seed(datetime.now())
 
@@ -164,16 +167,19 @@ class BaseEnv:
         return self.current_state, reward, done, None
 
     def _get_state(self):
-        state_ls = [self.client.getLinkState(self.robot_id, i)[0]
-                    for i in self.action_set]
-        base_link_pos = self.client \
-            .getBasePositionAndOrientation(self.robot_id)[0]
+        base_link_pos, base_link_orient = self.client \
+            .getBasePositionAndOrientation(self.robot_id)
         state = np.array([
             *base_link_pos,
+            *base_link_orient,
             sin(self.i*2*pi/OSC_PERIOD)*10,
+            cos(self.i*2*pi/OSC_PERIOD)*10,
+            sin(self.i*2*pi/OSC_PERIOD*2)*10,
+            cos(self.i*2*pi/OSC_PERIOD*2)*10,
+            sin(self.i*2*pi/OSC_PERIOD*4)*10,
+            cos(self.i*2*pi/OSC_PERIOD*4)*10,
             *[self.client.getJointState(self.robot_id, i)[0]
               for i in self.action_set],
-            *[item for subls in state_ls for item in subls],
         ])
         return state
 
