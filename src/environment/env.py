@@ -137,9 +137,8 @@ class BaseEnv:
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
                 controlMode=self.client.VELOCITY_CONTROL,
-                targetVelocity=action,
+                targetVelocity=action * 10,
                 force=1500)
-
 
     def step(self):
         self.client.stepSimulation()

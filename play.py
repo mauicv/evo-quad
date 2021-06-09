@@ -24,7 +24,7 @@ def play(genome, steps=STEPS):
     state = env.current_state
     rewards = 0
     i = 0
-    while not done and i < STEPS:
+    while not done and i < steps:
         i += 1
         time.sleep(0.007)
         action = np.array(model(state))/INPUT_SCALING_VAL
@@ -73,7 +73,6 @@ def best(steps, generation, dir, mutate):
             alpha=0.5
         )
         mutator(genome)
-
     rewards = play(genome.to_reduced_repr, steps)
     print(f'generation: {generation}, rewards: {rewards}')
 

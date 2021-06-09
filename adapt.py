@@ -11,8 +11,8 @@ import os
 
 import numpy as np
 
-from src.params import STEPS, ENV_NAME, STATE_DIMS, ACTION_DIMS, LAYER_DIMS, DIR, \
-    WEIGHT_LOW, WEIGHT_HIGH
+from src.params import STEPS, ENV_NAME, STATE_DIMS, ACTION_DIMS, LAYER_DIMS, \
+    DIR, WEIGHT_LOW, WEIGHT_HIGH
 
 
 def get_state_set(steps=STEPS, model=None):
@@ -73,7 +73,9 @@ if __name__ == '__main__':
     # for i in range(len(states[0])):
     #     plt.plot(states[:, i], color='red')
 
-    for i in range(len(actions[0][0:5])):
+    # Perhaps lower variance and lr might stabalize the nn outputs?
+
+    for i in range(len(actions[0][0:2])):
         plt.plot(actions[:, i])
 
     plt.show()
