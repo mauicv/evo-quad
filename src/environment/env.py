@@ -136,9 +136,10 @@ class BaseEnv:
         for joint_i, action in zip(self.action_set, actions):
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
-                controlMode=self.client.POSITION_CONTROL,
-                targetPosition=action,
+                controlMode=self.client.VELOCITY_CONTROL,
+                targetVelocity=action,
                 force=1500)
+
 
     def step(self):
         self.client.stepSimulation()

@@ -19,16 +19,16 @@ def moving_average(arr, N):
 if __name__ == '__main__':
     if os.path.isdir(DIR) and os.listdir(DIR):
         ds = DataStore(name=DIR)
-        means = []
+        # means = []
         bests = []
-        worsts = []
+        # worsts = []
         for generation in ds.generations():
             data = ds.generations()
-            means.append(generation['mean_fitness'])
+            # means.append(generation['mean_fitness'])
             bests.append(generation['best_fitness'])
             # worsts.append(generation['worst_fitness'])
-        plt.plot(means)
-        moving_aves = moving_average(bests, 1)
+        # plt.plot(means)
+        moving_aves = moving_average(bests, 10)
         plt.plot(moving_aves)
         plt.plot(bests)
         # plt.plot(worsts)
