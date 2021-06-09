@@ -78,9 +78,9 @@ class WalkingEnv(BaseEnv):
         for joint_i, action in zip(self.action_set, actions):
             # restrict joints.
             if joint_i in self.hip_joints or joint_i in self.knee_joints:
-                maxForce = 175
+                maxForce = 275
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
-                    controlMode=self.client.POSITION_CONTROL,
-                    targetPosition=action,
+                    controlMode=self.client.VELOCITY_CONTROL,
+                    targetVelocity=action,
                     force=maxForce)

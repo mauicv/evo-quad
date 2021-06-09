@@ -14,7 +14,7 @@ TARGET_LOC = np.array([0.0, 0.0, 0.18])
 TARGET_ORIENT = np.array([1, 1, 0])
 JOINT_AT_LIMIT_COST = 0.1
 TORQUE_COST = 0.4
-STEP_ACTION_RATE = 5
+STEP_ACTION_RATE = 1
 REWARD_SCALE = 10
 GROUND_CONTACT_COST = 100
 OSC_PERIOD = 200
@@ -172,12 +172,12 @@ class BaseEnv:
         state = np.array([
             *base_link_pos,
             *base_link_orient,
-            sin(self.i*2*pi/OSC_PERIOD)*10,
-            cos(self.i*2*pi/OSC_PERIOD)*10,
-            sin(self.i*2*pi/OSC_PERIOD*2)*10,
-            cos(self.i*2*pi/OSC_PERIOD*2)*10,
-            sin(self.i*2*pi/OSC_PERIOD*4)*10,
-            cos(self.i*2*pi/OSC_PERIOD*4)*10,
+            # sin(self.i*2*pi/OSC_PERIOD)*10,
+            # cos(self.i*2*pi/OSC_PERIOD)*10,
+            # sin(self.i*2*pi/OSC_PERIOD*2)*10,
+            # cos(self.i*2*pi/OSC_PERIOD*2)*10,
+            # sin(self.i*2*pi/OSC_PERIOD*4)*10,
+            # cos(self.i*2*pi/OSC_PERIOD*4)*10,
             *[self.client.getJointState(self.robot_id, i)[0]
               for i in self.action_set],
         ])

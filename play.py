@@ -15,7 +15,8 @@ from gerel.algorithms.RES.mutator import RESMutator
 from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.util.activations import build_leaky_relu, build_sigmoid
 
-STATE_DIMS = 54
+
+STATE_DIMS = 27
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398

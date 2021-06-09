@@ -21,13 +21,13 @@ from src.training.mappings import action_map
 
 ENV_NAME = 'walking-quadruped'
 EPISODES = 10000
-STATE_DIMS = 27
+STATE_DIMS = 21
 ACTION_DIMS = 12
 MIN_ACTION = -0.785398
 MAX_ACTION = 0.785398
 STEPS = 500
 LAYER_DIMS = [20, 20]
-BATCH_SIZE = 30
+BATCH_SIZE = 20
 
 batch_job = BatchJob()
 
@@ -134,7 +134,7 @@ def train_walk(dir):
     )
 
     population = RESPopulation(
-        population_size=300,
+        population_size=50,
         genome_seeder=seeder
     )
 
