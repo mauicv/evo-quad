@@ -1,11 +1,8 @@
 from gerel.genome.factories import dense
 from gerel.model.model import Model
-from gerel.util.activations import build_leaky_relu, build_sigmoid
-# import click
-# import time
+from gerel.util.activations import build_sigmoid
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
-# from gerel.genome.factories import dense, from_genes
 import matplotlib.pyplot as plt
 
 from gerel.util.datastore import DataStore
@@ -14,14 +11,8 @@ import os
 
 import numpy as np
 
-DIR = './data/default/'
-STATE_DIMS = 54
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
-LAYER_DIMS = [20, 20]
-ENV_NAME = 'walking-quadruped'
-STEPS = 100
+from src.params import STEPS, ENV_NAME, STATE_DIMS, ACTION_DIMS, LAYER_DIMS, DIR, \
+    WEIGHT_LOW, WEIGHT_HIGH
 
 
 def get_state_set(steps=STEPS, model=None):
@@ -46,8 +37,8 @@ def get_model():
         input_size=STATE_DIMS,
         output_size=ACTION_DIMS,
         layer_dims=LAYER_DIMS,
-        weight_low=-1,
-        weight_high=1,
+        weight_low=WEIGHT_LOW,
+        weight_high=WEIGHT_HIGH
     )
     sigmoid = build_sigmoid(c=10)
     model = Model(genome.to_reduced_repr, activation=sigmoid)
@@ -60,13 +51,11 @@ def load_model():
     ds = DataStore(name=DIR)
     data = ds.load(generation)
     nodes, edges = data['best_genome']
-    input_num = len([n for n in nodes if n[4] == 'input'])
-    output_num = len([n for n in nodes if n[4] == 'output'])
     nodes = [n for n in nodes if n[4] == 'hidden']
     genome = from_genes(
         nodes, edges,
-        input_size=input_num,
-        output_size=output_num,
+        input_size=STATE_DIMS,
+        output_size=ACTION_DIMS,
         depth=len(LAYER_DIMS))
     sigmoid = build_sigmoid(c=10)
     return Model(genome.to_reduced_repr, activation=sigmoid)

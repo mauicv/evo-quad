@@ -6,18 +6,10 @@ from datetime import datetime
 import numpy as np
 from numpy import float32, inf
 from src.environment.spaces import Box
-from math import sin, cos, pi
+from src.params import STEP_ACTION_RATE
+# from math import sin, cos, pi
 
 seed(datetime.now())
-
-TARGET_LOC = np.array([0.0, 0.0, 0.18])
-TARGET_ORIENT = np.array([1, 1, 0])
-JOINT_AT_LIMIT_COST = 0.1
-TORQUE_COST = 0.4
-STEP_ACTION_RATE = 1
-REWARD_SCALE = 10
-GROUND_CONTACT_COST = 100
-OSC_PERIOD = 200
 
 A_JOINTS = {
     b'core_left_shoulder',

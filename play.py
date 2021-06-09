@@ -5,26 +5,15 @@ import numpy as np
 
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
-from src.environment.group_env import GroupEnv
 
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-from gerel.algorithms.RES.population import RESPopulation
 from gerel.genome.factories import from_genes
 from gerel.algorithms.RES.mutator import RESMutator
-from gerel.populations.genome_seeders import curry_genome_seeder
-from gerel.util.activations import build_leaky_relu, build_sigmoid
+from gerel.util.activations import build_sigmoid
 
-
-STATE_DIMS = 27
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
-LAYER_DIMS = [20, 20]
-BATCH_SIZE = 25
-DIR = './data/default/'
-ENV_NAME = 'walking-quadruped'
-STEPS = 1000
+from src.params import STEPS, ENV_NAME, LAYER_DIMS, DIR, STATE_DIMS, \
+    ACTION_DIMS
 
 
 def play(genome, steps=STEPS):
@@ -89,13 +78,11 @@ def best(steps, generation, dir, mutate):
     ds = DataStore(name=dir)
     data = ds.load(generation)
     nodes, edges = data['best_genome']
-    input_num = len([n for n in nodes if n[4] == 'input'])
-    output_num = len([n for n in nodes if n[4] == 'output'])
     nodes = [n for n in nodes if n[4] == 'hidden']
     genome = from_genes(
         nodes, edges,
-        input_size=input_num,
-        output_size=output_num,
+        input_size=STATE_DIMS,
+        output_size=ACTION_DIMS,
         depth=len(LAYER_DIMS))
 
     if mutate:
@@ -108,50 +95,6 @@ def best(steps, generation, dir, mutate):
 
     rewards = play(genome.to_reduced_repr, steps)
     print(f'generation: {generation}, rewards: {rewards}')
-
-
-@cli.command()
-@click.option('--steps', '-s', default=STEPS, type=int,
-              help='Max number of steps per episode')
-@click.option('--generation', '-g', default=None, type=int,
-              help='Generation to play')
-@click.option('--dir', '-d', default=DIR,
-              help='working folder')
-def play_gen(steps, generation, dir):
-    if not generation:
-        generation = max([int(i) for i in os.listdir(dir)])
-
-    ds = DataStore(name=dir)
-    data = ds.load(generation)
-    nodes, edges = data['best_genome']
-    input_num = len([n for n in nodes if n[4] == 'input'])
-    output_num = len([n for n in nodes if n[4] == 'output'])
-    nodes = [n for n in nodes if n[4] == 'hidden']
-    genome = from_genes(
-        nodes, edges,
-        input_size=input_num,
-        output_size=output_num,
-        depth=len(LAYER_DIMS))
-
-    init_mu = np.array(genome.weights)
-
-    mutator = RESMutator(
-        initial_mu=init_mu,
-        std_dev=0.5,
-        alpha=1
-    )
-
-    seeder = curry_genome_seeder(
-        mutator=mutator,
-        seed_genomes=[genome]
-    )
-
-    population = RESPopulation(
-        population_size=9,
-        genome_seeder=seeder
-    )
-
-    play_population(population)
 
 
 if __name__ == '__main__':

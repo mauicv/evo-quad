@@ -13,21 +13,14 @@ from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-from gerel.util.activations import build_leaky_relu, build_sigmoid
+from gerel.util.activations import build_sigmoid
 
 from src.training.batch import BatchJob
 from src.training.stream_redirect import RedirectAllOutput
 from src.training.mappings import action_map
-
-ENV_NAME = 'walking-quadruped'
-EPISODES = 10000
-STATE_DIMS = 21
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
-STEPS = 500
-LAYER_DIMS = [20, 20]
-BATCH_SIZE = 20
+from src.params import ENV_NAME, STEPS, LAYER_DIMS, EPISODES, STATE_DIMS, \
+    ACTION_DIMS, BATCH_SIZE, POPULATION_SIZE, STD_DEV, ALPHA, WEIGHT_LOW, \
+    WEIGHT_HIGH
 
 batch_job = BatchJob()
 
@@ -115,8 +108,8 @@ def train_walk(dir):
             input_size=STATE_DIMS,
             output_size=ACTION_DIMS,
             layer_dims=LAYER_DIMS,
-            weight_low=-2,
-            weight_high=2
+            weight_low=WEIGHT_LOW,
+            weight_high=WEIGHT_HIGH
         )
         print(f'seeding generation 0, with  genome: {genome}')
 
@@ -124,8 +117,8 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=1.5,
-        alpha=1
+        std_dev=STD_DEV,
+        alpha=ALPHA
     )
 
     seeder = curry_genome_seeder(
@@ -134,12 +127,14 @@ def train_walk(dir):
     )
 
     population = RESPopulation(
-        population_size=50,
+        population_size=POPULATION_SIZE,
         genome_seeder=seeder
     )
 
-    print('population size = 250')
-    print('population type = RESPopulation')
+    print('population size:', POPULATION_SIZE)
+    print('population type: RESPopulation')
+    print('STD_DEV:', STD_DEV)
+    print('ALPHA:', ALPHA)
     print('mutator type = RESMutator')
     print('num episodes:', EPISODES)
     print('num steps:', STEPS)

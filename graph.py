@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 from gerel.util.datastore import DataStore
 import os
 
-
-DIR = './data/default/'
+from src.params import DIR
 
 
 def moving_average(arr):
