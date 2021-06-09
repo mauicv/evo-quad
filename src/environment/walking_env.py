@@ -6,6 +6,8 @@ from src.environment.env import BaseEnv
 from src.params import REWARD_SCALE, TORQUE_COST, \
     GROUND_CONTACT_COST, JOINT_AT_LIMIT_COST
 
+TARGET_HEIGHT = 0.30487225144721647
+
 
 class WalkingEnv(BaseEnv):
     def __init__(
@@ -42,7 +44,8 @@ class WalkingEnv(BaseEnv):
 
     def _progress_reward(self):
         forwards_movement = self.current_state[1] - self.last_state[1]
-        return forwards_movement * REWARD_SCALE
+        vertical_movement = 4 * abs(self.current_state[2] - TARGET_HEIGHT) ** 2
+        return forwards_movement * REWARD_SCALE - vertical_movement
 
     def _joints_at_limit_cost(self):
         count = 0
@@ -63,4 +66,4 @@ class WalkingEnv(BaseEnv):
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
                     controlMode=self.client.TORQUE_CONTROL,
-                    force=action*1200)
+                    force=action*1600)
