@@ -12,8 +12,10 @@ Couple of potential solutions:
   - [x] Restrict action complexity. Currently there are 12 degrees of freedom, 4 legs * 3 joints in each. OpenAi ant env has 8. Supposing we reduce each action to moving the leg join one way or another this means there are 2^12 = 4096 options for each time step which is significantly more than the 2^8 = 256 for 8 variables. If we assume that the majority of the work done while walking is in the hip joints then we can restrict to just those joints and train on those 4, once the model has some suboptimal performance on them we can add the knee joins and so on.
 
 Other things:
-  - [ ] Try different learning rates.
+  - [X] Try different learning rates.
   - [x] Try different oscillation rates.
-  - [ ] Replace POSITION_CONTROL with VELOCITY_CONTROL
-  - [ ] Replace VELOCITY_CONTROL with TORQUE_CONTROL
-  - [ ] increase torque
+  - [X] Replace POSITION_CONTROL with VELOCITY_CONTROL
+  - [X] Replace VELOCITY_CONTROL with TORQUE_CONTROL
+  - [X] increase torque
+
+Appears the torque applied to the motor wasn't strong enough which meant the default outcome was for the quadruped to fall over and be unable to get back up.

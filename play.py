@@ -29,7 +29,7 @@ def play(genome, steps=STEPS):
         time.sleep(0.007)
         action = np.array(model(state))/INPUT_SCALING_VAL
         action = action_map(action)
-        # env.take_action(action)
+        env.take_action(action)
         env.step()
         next_state, reward, done, _ = env.get_state()
         rewards += reward

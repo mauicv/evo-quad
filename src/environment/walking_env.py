@@ -65,5 +65,6 @@ class WalkingEnv(BaseEnv):
             if joint_i in self.hip_joints or joint_i in self.knee_joints:
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
-                    controlMode=self.client.TORQUE_CONTROL,
-                    force=action*1600)
+                    controlMode=self.client.POSITION_CONTROL,
+                    targetPosition=action,
+                    force=1500)

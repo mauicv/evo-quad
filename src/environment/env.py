@@ -103,9 +103,6 @@ class BaseEnv:
             [0, 0, 0],
             slope)
 
-        # self.client.changeDynamics(
-        #     self.plane_id, -1, lateralFriction=1, restitution=0)
-
         robot_start_pos = [0, 0, 0.4]
         robot_start_orientation = self.client.getQuaternionFromEuler([0, 0, 0])
         self.robot_id = self.client.loadURDF(
@@ -131,19 +128,17 @@ class BaseEnv:
         self.last_state = state
         self.current_state = state
 
-        # self.client.changeDynamics(
-        #     self.robot_id, -1, lateralFriction=1, restitution=0)
         return state
 
     def take_action(self, actions):
         # Overriden in walking_env
         self.last_state = self.current_state
         for joint_i, action in zip(self.action_set, actions):
-            # maxForce = 500
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
-                controlMode=self.client.TORQUE_CONTROL,
-                force=action*10)
+                controlMode=self.client.POSITION_CONTROL,
+                targetPosition=action,
+                force=1500)
 
     def step(self):
         self.client.stepSimulation()
