@@ -35,27 +35,6 @@ def play(genome, steps=STEPS):
     return rewards
 
 
-def play_population(population, steps=STEPS):
-    sigmoid = build_sigmoid()
-    models = [Model(genome.to_reduced_repr,
-                    activation=sigmoid)
-              for genome in population.genomes]
-    env = GroupEnv(ENV_NAME, vis=True)
-    for x in range(-3, 3, 2):
-        for y in range(-3, 3, 2):
-            env.add_actor([x, y])
-
-    i = 0
-    while i < STEPS:
-        i += 1
-        for j, (state, model) \
-                in enumerate(zip(env.get_states(), models)):
-            action = model(state)
-            action = action_map(action)
-            env.step_i(j, action)
-        env.client.stepSimulation()
-
-
 @click.group()
 @click.option('--debug/--no-debug', default=False)
 def cli(debug):
