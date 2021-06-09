@@ -5,8 +5,7 @@ import os
 from src.params import DIR
 
 
-def moving_average(arr):
-    N = 50
+def moving_average(arr, N):
     cumsum, moving_aves = [0], []
 
     for i, x in enumerate(bests, 1):
@@ -29,7 +28,7 @@ if __name__ == '__main__':
             bests.append(generation['best_fitness'])
             # worsts.append(generation['worst_fitness'])
         # plt.plot(means)
-        moving_aves = moving_average(bests)
+        moving_aves = moving_average(bests, 1)
         plt.plot(moving_aves)
         # plt.plot(bests)
         # plt.plot(worsts)

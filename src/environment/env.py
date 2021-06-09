@@ -1,12 +1,11 @@
 # https://github.com/openai/gym/issues/585#issuecomment-370015441
-
+# https://github.com/bulletphysics/bullet3/blob/5ae9a15ecac7bc7e71f1ec1b544a55135d7d7e32/examples/pybullet/gym/pybullet_envs/robot_locomotors.py#L30
 
 from random import random, seed
 from datetime import datetime
 import numpy as np
 from numpy import float32, inf
 from src.environment.spaces import Box
-from src.params import STEP_ACTION_RATE
 # from math import sin, cos, pi
 
 seed(datetime.now())
@@ -58,7 +57,6 @@ class BaseEnv:
         self.client = bc.BulletClient(connection_mode=pybullet.GUI) if vis \
             else bc.BulletClient(connection_mode=pybullet.DIRECT)
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
-        self.i = 0
         self.reset()
         self.describe_space()
 
@@ -138,20 +136,19 @@ class BaseEnv:
         return state
 
     def take_action(self, actions):
+        # Overriden in walking_env
+        self.last_state = self.current_state
         for joint_i, action in zip(self.action_set, actions):
-            maxForce = 500
+            # maxForce = 500
             self.client.setJointMotorControl2(
                 self.robot_id, joint_i,
-                controlMode=self.client.POSITION_CONTROL,
-                targetPosition=action,
-                force=maxForce)
+                controlMode=self.client.TORQUE_CONTROL,
+                force=action*10)
 
-    def step(self, actions):
-        self.i += 1
-        self.last_state = self.current_state
-        for _ in range(STEP_ACTION_RATE):
-            self.take_action(actions)
+    def step(self):
         self.client.stepSimulation()
+
+    def get_state(self):
         # note _get_state must happen before _get_reward or _get_reward
         # will return nonsense!
         self.current_state = self._get_state()

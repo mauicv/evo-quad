@@ -13,7 +13,7 @@ from gerel.algorithms.RES.mutator import RESMutator
 from gerel.util.activations import build_sigmoid
 
 from src.params import STEPS, ENV_NAME, LAYER_DIMS, DIR, STATE_DIMS, \
-    ACTION_DIMS
+    ACTION_DIMS, INPUT_SCALING_VAL
 
 
 def play(genome, steps=STEPS):
@@ -27,9 +27,11 @@ def play(genome, steps=STEPS):
     while not done and i < STEPS:
         i += 1
         time.sleep(0.007)
-        action = np.array(model(state))/6
+        action = np.array(model(state))/INPUT_SCALING_VAL
         action = action_map(action)
-        next_state, reward, done, _ = env.step(action)
+        env.take_action(action)
+        env.step()
+        next_state, reward, done, _ = env.get_state()
         rewards += reward
         state = next_state
     return rewards

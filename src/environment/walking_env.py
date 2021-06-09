@@ -1,4 +1,6 @@
 
+# https://www.etedal.net/2020/04/pybullet-panda_2.html
+
 import numpy as np
 from src.environment.env import BaseEnv
 from src.params import REWARD_SCALE, TORQUE_COST, \
@@ -54,12 +56,11 @@ class WalkingEnv(BaseEnv):
         return - count * JOINT_AT_LIMIT_COST
 
     def take_action(self, actions):
+        self.last_state = self.current_state
         for joint_i, action in zip(self.action_set, actions):
             # restrict joints.
             if joint_i in self.hip_joints or joint_i in self.knee_joints:
-                maxForce = 275
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
-                    controlMode=self.client.VELOCITY_CONTROL,
-                    targetVelocity=action,
-                    force=maxForce)
+                    controlMode=self.client.TORQUE_CONTROL,
+                    force=action*1200)

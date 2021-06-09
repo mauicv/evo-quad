@@ -20,7 +20,7 @@ from src.training.stream_redirect import RedirectAllOutput
 from src.training.mappings import action_map
 from src.params import ENV_NAME, STEPS, LAYER_DIMS, EPISODES, STATE_DIMS, \
     ACTION_DIMS, BATCH_SIZE, POPULATION_SIZE, STD_DEV, ALPHA, WEIGHT_LOW, \
-    WEIGHT_HIGH
+    WEIGHT_HIGH, INPUT_SCALING_VAL
 
 batch_job = BatchJob()
 
@@ -41,10 +41,11 @@ def compute_fitness(genomes):
                     enumerate(zip(models, envs, dones, states)):
                 if done:
                     continue
-
-                action = np.array(model(state))/6
+                action = np.array(model(state))/INPUT_SCALING_VAL
                 action = action_map(action)
-                next_state, reward, done, _ = env.step(action)
+                env.take_action(action)
+                env.step()
+                next_state, reward, done, _ = env.get_state()
                 rewards[index] += reward
                 dones[index] = done
                 states[index] = next_state

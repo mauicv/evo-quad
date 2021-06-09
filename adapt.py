@@ -21,12 +21,14 @@ def get_state_set(steps=STEPS, model=None):
     i = 0
     states = []
     actions = []
-    while i < STEPS:
+    while i < steps:
         i += 1
         action = model(state)
         action = action_map(action)
         actions.append(action)
-        state, _, _, _ = env.step(action)
+        env.take_action(action)
+        env.step()
+        state, _, _, _ = env.get_state()
         states.append(state)
 
     return states, actions
@@ -62,8 +64,8 @@ def load_model():
 
 
 if __name__ == '__main__':
-    model = get_model()
-    # model = load_model()
+    # model = get_model()
+    model = load_model()
     states, actions = get_state_set(100, model)
     states = np.array(states)
     actions = np.array(actions)
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     # for i in range(len(states[0])):
     #     plt.plot(states[:, i], color='red')
 
-    for i in range(len(actions[0])):
-        plt.plot(actions[:, i], color='blue')
+    for i in range(len(actions[0][0:5])):
+        plt.plot(actions[:, i])
 
     plt.show()

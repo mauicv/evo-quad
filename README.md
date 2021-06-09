@@ -14,6 +14,6 @@ Couple of potential solutions:
 Other things:
   - [ ] Try different learning rates.
   - [x] Try different oscillation rates.
-  - [ ] Replace oscillations with VELOCITY_CONTROL
-
-The behaviour of the model is very sensitive to the mutation rate. This means the improvements are likely to be very slow or very unstable.
+  - [ ] Replace POSITION_CONTROL with VELOCITY_CONTROL
+  - [ ] Replace VELOCITY_CONTROL with TORQUE_CONTROL
+  - [ ] increase torque
