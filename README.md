@@ -19,3 +19,10 @@ Other things:
   - [X] increase torque
 
 Appears the torque applied to the motor wasn't strong enough which meant the default outcome was for the quadruped to fall over and be unable to get back up.
+
+#### Alignment Issue:
+
+- [ ] Change motor control parameters
+- [ ] Try smoothing network output, seems to be very volatile atm
+- [ ] Add a zero zone, where if action is between -0.1 and 0.1 the torque is
+      zero.

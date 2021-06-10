@@ -11,15 +11,15 @@ from gerel.model.model import Model
 from gerel.genome.factories import from_genes
 from gerel.algorithms.RES.mutator import RESMutator
 from gerel.util.activations import build_sigmoid
+from src.util import get_genome, load_genome
+
 
 from src.params import STEPS, ENV_NAME, LAYER_DIMS, DIR, STATE_DIMS, \
     ACTION_DIMS, INPUT_SCALING_VAL
 
 
-def play(genome, steps=STEPS):
+def play(model, steps=STEPS):
     done = False
-    sigmoid = build_sigmoid()
-    model = Model(genome, activation=sigmoid)
     env = WalkingEnv(ENV_NAME, var=0, vis=True)
     state = env.current_state
     rewards = 0
@@ -52,19 +52,13 @@ def cli(debug):
               help='working folder')
 @click.option('--mutate', '-m', default=0, type=float,
               help='mutation rate')
-def best(steps, generation, dir, mutate):
-    if not generation:
-        generation = max([int(i) for i in os.listdir(dir)])
-
-    ds = DataStore(name=dir)
-    data = ds.load(generation)
-    nodes, edges = data['best_genome']
-    nodes = [n for n in nodes if n[4] == 'hidden']
-    genome = from_genes(
-        nodes, edges,
-        input_size=STATE_DIMS,
-        output_size=ACTION_DIMS,
-        depth=len(LAYER_DIMS))
+@click.option('--trial', '-t', is_flag=True,
+              help='test random network')
+def best(steps, generation, dir, mutate, trial):
+    if trial:
+        genome = get_genome()
+    else:
+        genome = load_genome(generation, dir=dir)
 
     if mutate:
         mutator = RESMutator(
@@ -73,7 +67,10 @@ def best(steps, generation, dir, mutate):
             alpha=0.5
         )
         mutator(genome)
-    rewards = play(genome.to_reduced_repr, steps)
+
+    sigmoid = build_sigmoid(c=10)
+    model = Model(genome.to_reduced_repr, activation=sigmoid)
+    rewards = play(model, steps)
     print(f'generation: {generation}, rewards: {rewards}')
 
 

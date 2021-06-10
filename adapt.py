@@ -1,18 +1,10 @@
-from gerel.genome.factories import dense
-from gerel.model.model import Model
-from gerel.util.activations import build_sigmoid
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
+from src.params import STEPS, ENV_NAME
+from src.util import get_model, load_model
+
 import matplotlib.pyplot as plt
-
-from gerel.util.datastore import DataStore
-from gerel.genome.factories import from_genes
-import os
-
 import numpy as np
-
-from src.params import STEPS, ENV_NAME, STATE_DIMS, ACTION_DIMS, LAYER_DIMS, \
-    DIR, WEIGHT_LOW, WEIGHT_HIGH
 
 
 def get_state_set(steps=STEPS, model=None):
@@ -20,10 +12,12 @@ def get_state_set(steps=STEPS, model=None):
     state = env.current_state
     i = 0
     states = []
+    pre_actions = []
     actions = []
     while i < steps:
         i += 1
         action = model(state)
+        pre_actions.append(action)
         action = action_map(action)
         actions.append(action)
         env.take_action(action)
@@ -31,51 +25,20 @@ def get_state_set(steps=STEPS, model=None):
         state, _, _, _ = env.get_state()
         states.append(state)
 
-    return states, actions
-
-
-def get_model():
-    genome = dense(
-        input_size=STATE_DIMS,
-        output_size=ACTION_DIMS,
-        layer_dims=LAYER_DIMS,
-        weight_low=WEIGHT_LOW,
-        weight_high=WEIGHT_HIGH
-    )
-    sigmoid = build_sigmoid(c=10)
-    model = Model(genome.to_reduced_repr, activation=sigmoid)
-    return model
-
-
-def load_model():
-    generation = max([int(i) for i in os.listdir(DIR)])
-
-    ds = DataStore(name=DIR)
-    data = ds.load(generation)
-    nodes, edges = data['best_genome']
-    nodes = [n for n in nodes if n[4] == 'hidden']
-    genome = from_genes(
-        nodes, edges,
-        input_size=STATE_DIMS,
-        output_size=ACTION_DIMS,
-        depth=len(LAYER_DIMS))
-    sigmoid = build_sigmoid(c=10)
-    return Model(genome.to_reduced_repr, activation=sigmoid)
+    return states, actions, pre_actions
 
 
 if __name__ == '__main__':
-    # model = get_model()
-    model = load_model()
-    states, actions = get_state_set(100, model)
+    model = get_model()
+    # model = load_model()
+    states, actions, pre_actions = get_state_set(500, model)
     states = np.array(states)
     actions = np.array(actions)
-
+    pre_actions = np.array(pre_actions)
     # for i in range(len(states[0])):
-    #     plt.plot(states[:, i], color='red')
+    plt.plot(pre_actions[:, 0], color='red')
 
-    # Perhaps lower variance and lr might stabalize the nn outputs?
-
-    for i in range(len(actions[0][0:2])):
-        plt.plot(actions[:, i])
+    # for i in range(len(actions[0])):
+    plt.plot(actions[:, 0], color='blue')
 
     plt.show()

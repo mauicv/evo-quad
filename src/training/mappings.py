@@ -5,4 +5,4 @@ ACTION_RANGE = (MAX_ACTION - MIN_ACTION) / 2
 
 
 def action_map(x):
-    return  ACTION_RANGE * np.tanh(np.array(x)/5)  # noqa
+    return  ACTION_RANGE * np.tanh(np.array(x))  # noqa
