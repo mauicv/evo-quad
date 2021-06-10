@@ -26,7 +26,7 @@
 
   <joint name="core_left_shoulder" type="revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="core"/>
     <child link="left_shoulder"/>
     <origin xyz="-0.33911 0.5175 0.9"/>
@@ -47,7 +47,7 @@
 
   <joint name="left_shoulder_left_leg_top" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="left_shoulder"/>
     <child link="left_leg_top"/>
     <origin xyz="-0.24389 0 -0.04505"/>
@@ -68,7 +68,7 @@
 
   <joint name="left_leg_top_left_leg_bottom" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="left_leg_top"/>
     <child link="left_leg_bottom"/>
     <origin xyz="0 0 -0.45983"/>
@@ -127,7 +127,7 @@
 
   <joint name="core_right_shoulder" type="revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="core"/>
     <child link="right_shoulder"/>
     <origin xyz="0.33911 0.5175 0.9"/>
@@ -148,7 +148,7 @@
 
   <joint name="right_shoulder_right_leg_top" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="right_shoulder"/>
     <child link="right_leg_top"/>
     <origin xyz="0.24389 0 -0.04505"/>
@@ -169,7 +169,7 @@
 
   <joint name="right_leg_top_right_leg_bottom" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="right_leg_top"/>
     <child link="right_leg_bottom"/>
     <origin xyz="0 0 -0.45983"/>
@@ -227,7 +227,7 @@
 
   <joint name="core_back_left_shoulder" type="revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="core"/>
     <child link="back_left_shoulder"/>
     <origin xyz="-0.33911 -0.5175 0.9"/>
@@ -248,7 +248,7 @@
 
   <joint name="back_left_shoulder_back_right_leg_top" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="back_left_shoulder"/>
     <child link="back_left_leg_top"/>
     <origin xyz="-0.24389 0 -0.04505"/>
@@ -269,7 +269,7 @@
 
   <joint name="back_left_leg_top_back_left_leg_bottom" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="back_left_leg_top"/>
     <child link="back_left_leg_bottom"/>
     <origin xyz="0 0 -0.45983"/>
@@ -328,7 +328,7 @@
 
   <joint name="core_back_right_shoulder" type="revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="core"/>
     <child link="back_right_shoulder"/>
     <origin xyz="0.33911 -0.5175 0.9"/>
@@ -349,7 +349,7 @@
 
   <joint name="back_right_shoulder_back_right_leg_top" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="back_right_shoulder"/>
     <child link="back_right_leg_top"/>
     <origin xyz="0.24389 0 -0.04505"/>
@@ -370,7 +370,7 @@
 
   <joint name="back_right_leg_top_back_right_leg_bottom" type="revolute">
     <axis xyz="1 0 0"/>
-    <limit effort="100" velocity="100" lower="-0.785398" upper="0.785398"/>
+    <limit effort="1000" velocity="1000" lower="-0.785398" upper="0.785398"/>
     <parent link="back_right_leg_top"/>
     <child link="back_right_leg_bottom"/>
     <origin xyz="0 0 -0.45983"/>
