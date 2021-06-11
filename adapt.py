@@ -29,16 +29,16 @@ def get_state_set(steps=STEPS, model=None):
 
 
 if __name__ == '__main__':
-    model = get_model()
-    # model = load_model()
+    # model = get_model()
+    model = load_model()
     states, actions, pre_actions = get_state_set(500, model)
     states = np.array(states)
     actions = np.array(actions)
     pre_actions = np.array(pre_actions)
-    # for i in range(len(states[0])):
-    plt.plot(pre_actions[:, 0], color='red')
+    for i in range(len(pre_actions[0])):
+        plt.plot(pre_actions[:, i], color='red')
 
-    # for i in range(len(actions[0])):
-    plt.plot(actions[:, 0], color='blue')
+    for i in range(len(actions[0])):
+        plt.plot(actions[:, i], color='blue')
 
     plt.show()
