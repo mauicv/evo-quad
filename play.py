@@ -1,21 +1,14 @@
-import os
 import click
 import time
 import numpy as np
 
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
-
-from gerel.util.datastore import DataStore
-from gerel.model.model import Model
-from gerel.genome.factories import from_genes
-from gerel.algorithms.RES.mutator import RESMutator
-from gerel.util.activations import build_sigmoid
 from src.util import get_genome, load_genome
+from src.params import STEPS, ENV_NAME, DIR, INPUT_SCALING_VAL
 
-
-from src.params import STEPS, ENV_NAME, LAYER_DIMS, DIR, STATE_DIMS, \
-    ACTION_DIMS, INPUT_SCALING_VAL
+from gerel.model.model import Model
+from gerel.algorithms.RES.mutator import RESMutator
 
 
 def play(model, steps=STEPS):
@@ -68,8 +61,7 @@ def best(steps, generation, dir, mutate, trial):
         )
         mutator(genome)
 
-    sigmoid = build_sigmoid(c=10)
-    model = Model(genome.to_reduced_repr, activation=sigmoid)
+    model = Model(genome.to_reduced_repr)
     rewards = play(model, steps)
     print(f'generation: {generation}, rewards: {rewards}')
 

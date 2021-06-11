@@ -22,7 +22,14 @@ Appears the torque applied to the motor wasn't strong enough which meant the def
 
 #### Alignment Issue:
 
+Robot successfully learn to move forward. However it transpired that it had found a flaw in the simulation in order to do so. Possible solutions:
+
 - [ ] Change motor control parameters
 - [ ] Try smoothing network output, seems to be very volatile atm
-- [ ] Add a zero zone, where if action is between -0.1 and 0.1 the torque is
-      zero.
+- [ ] Add a zero zone, where if action is between -0.1 and 0.1 the torque is zero.
+
+#### Network Output volatility
+
+So the network outputs and extremely volatile signal. I checked to see if this was the same as in the ant case and it was. In fact evo-ants network is basically a very chaotic signal that's then squashed down onto [-1, 1] by the tanh output layer into essentially a square wave with different frequencies. I think our issue is that if a network output for a specific action is distributed around a mean sufficiently far outside of [-1, 1] then we end up with a signal that's mostly just takes value 1. The parameter updates are unlikely to move this signal by much and the end result will likely be that the model can't learn anything for that signal. This is the notable difference between ant and quad network outputs, namely that the mean of the network outputs is around 0 for the ant but outside of [-1, 1] for quad.
+
+- [ ] Find a way to centre the output.

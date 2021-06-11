@@ -1,6 +1,5 @@
 from gerel.genome.factories import dense
 from gerel.model.model import Model
-from gerel.util.activations import build_sigmoid
 
 from gerel.util.datastore import DataStore
 from gerel.genome.factories import from_genes
@@ -23,8 +22,7 @@ def get_genome():
 
 def get_model():
     genome = get_genome()
-    sigmoid = build_sigmoid(c=10)
-    model = Model(genome.to_reduced_repr, activation=sigmoid)
+    model = Model(genome.to_reduced_repr)
     return model
 
 
@@ -45,5 +43,4 @@ def load_genome(generation=None, dir=DIR):
 
 def load_model(generation=None):
     genome = load_genome(generation)
-    sigmoid = build_sigmoid(c=10)
-    return Model(genome.to_reduced_repr, activation=sigmoid)
+    return Model(genome.to_reduced_repr)

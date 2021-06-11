@@ -13,7 +13,6 @@ from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-from gerel.util.activations import build_sigmoid
 
 from src.training.batch import BatchJob
 from src.training.stream_redirect import RedirectAllOutput
@@ -31,8 +30,7 @@ def compute_fitness(genomes):
             RedirectAllOutput(sys.stderr, file=os.devnull):
         envs = [WalkingEnv(ENV_NAME, var=0, vis=False)
                 for _ in range(len(genomes))]
-        sigmoid = build_sigmoid(c=10)
-        models = [Model(genome, activation=sigmoid) for genome in genomes]
+        models = [Model(genome) for genome in genomes]
         dones = [False for _ in range(len(genomes))]
         states = [np.array(env.current_state, dtype='float32') for env in envs]
         rewards = [0 for _ in range(len(genomes))]
