@@ -1,6 +1,7 @@
 # https://github.com/openai/gym/issues/585#issuecomment-370015441
 # https://github.com/bulletphysics/bullet3/blob/5ae9a15ecac7bc7e71f1ec1b544a55135d7d7e32/examples/pybullet/gym/pybullet_envs/robot_locomotors.py#L30
 
+
 from random import random, seed
 from datetime import datetime
 import numpy as np
@@ -32,10 +33,13 @@ C_JOINTS = {
 }
 
 JOINTS = {*A_JOINTS, *B_JOINTS, *C_JOINTS}
-# b'left_leg_bottom_left_foot',
-# b'right_leg_bottom_right_foot',
-# b'back_left_leg_bottom_back_left_foot',
-# b'back_right_leg_bottom_back_right_foot'
+
+FEET = {
+    b'left_leg_bottom_left_foot',
+    b'right_leg_bottom_right_foot',
+    b'back_left_leg_bottom_back_left_foot',
+    b'back_right_leg_bottom_back_right_foot'
+}
 
 
 class BaseEnv:
@@ -117,6 +121,16 @@ class BaseEnv:
             joint_data = self.client.getJointInfo(self.robot_id, joint_i)
             self.joints[joint_data[1]] = joint_data[0]
 
+        for foot in FEET:
+            self.client.changeDynamics(
+                self.robot_id,
+                self.joints[foot],
+                lateralFriction=1.25,
+                spinningFriction=1,
+                rollingFriction=1,
+                restitution=0
+            )
+
         self.shoulder_joints = set(self.joints[name] for name in A_JOINTS)
         self.hip_joints = set(self.joints[name] for name in B_JOINTS)
         self.knee_joints = set(self.joints[name] for name in C_JOINTS)
@@ -131,14 +145,7 @@ class BaseEnv:
         return state
 
     def take_action(self, actions):
-        # Overriden in walking_env
-        self.last_state = self.current_state
-        for joint_i, action in zip(self.action_set, actions):
-            self.client.setJointMotorControl2(
-                self.robot_id, joint_i,
-                controlMode=self.client.VELOCITY_CONTROL,
-                targetVelocity=action * 10,
-                force=1500)
+        raise NotImplementedError()
 
     def step(self):
         self.client.stepSimulation()

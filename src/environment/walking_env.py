@@ -66,5 +66,5 @@ class WalkingEnv(BaseEnv):
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
                     controlMode=self.client.VELOCITY_CONTROL,
-                    targetVelocity=action * 10,
-                    force=1500)
+                    targetVelocity=action * 15,
+                    force=15)
