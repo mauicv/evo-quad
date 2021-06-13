@@ -1,5 +1,8 @@
 ## evo-quad
 
+### TODO:
+
+- [ ] Replace absolute state with relative state. Instead of x, y, z position of quadruped we should only have rate of change or orientation.
 
 ### Working Notes:
 
@@ -32,4 +35,4 @@ So the network outputs and extremely volatile signal. I checked to see if this w
 #### lateral Friction of feet
 
 So the robot does a pretty good impression of trying to run. However I think the weights are all completely off as are the frictional constants, hence it sort of gallops on the spot.
-- [ ] Replace mass, force and frictional values with those in here [quadruped](https://github.com/bulletphysics/bullet3/blob/5ae9a15ecac7bc7e71f1ec1b544a55135d7d7e32/data/quadruped/quadruped.urdf)
+- [x] Replace mass, force and frictional values with those in here [quadruped](https://github.com/bulletphysics/bullet3/blob/5ae9a15ecac7bc7e71f1ec1b544a55135d7d7e32/data/quadruped/quadruped.urdf)

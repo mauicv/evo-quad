@@ -11,9 +11,9 @@ from gerel.model.model import Model
 from gerel.algorithms.RES.mutator import RESMutator
 
 
-def play(model, steps=STEPS):
+def play(model, steps=STEPS, record=False):
     done = False
-    env = WalkingEnv(ENV_NAME, var=0, vis=True)
+    env = WalkingEnv(ENV_NAME, var=0, vis=True, record=record)
     state = env.current_state
     rewards = 0
     i = 0
@@ -27,6 +27,8 @@ def play(model, steps=STEPS):
         next_state, reward, done, _ = env.get_state()
         rewards += reward
         state = next_state
+
+    env.close()
     return rewards
 
 
@@ -47,7 +49,9 @@ def cli(debug):
               help='mutation rate')
 @click.option('--trial', '-t', is_flag=True,
               help='test random network')
-def best(steps, generation, dir, mutate, trial):
+@click.option('--record', '-r', is_flag=True,
+              help='record scene')
+def best(steps, generation, dir, mutate, trial, record):
     if trial:
         genome = get_genome()
     else:
@@ -62,7 +66,7 @@ def best(steps, generation, dir, mutate, trial):
         mutator(genome)
 
     model = Model(genome.to_reduced_repr)
-    rewards = play(model, steps)
+    rewards = play(model, steps, record)
     print(f'generation: {generation}, rewards: {rewards}')
 
 

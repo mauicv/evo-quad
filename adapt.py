@@ -1,7 +1,8 @@
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
 from src.params import STEPS, ENV_NAME
-from src.util import get_model, load_model
+from src.util import load_model
+# from src.util import get_model
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,8 +36,8 @@ if __name__ == '__main__':
     states = np.array(states)
     actions = np.array(actions)
     pre_actions = np.array(pre_actions)
-    for i in range(len(pre_actions[0])):
-        plt.plot(pre_actions[:, i], color='red')
+    # for i in range(len(pre_actions[0])):
+    #     plt.plot(pre_actions[:, i], color='red')
 
     for i in range(len(actions[0])):
         plt.plot(actions[:, i], color='blue')

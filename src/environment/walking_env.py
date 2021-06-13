@@ -14,8 +14,9 @@ class WalkingEnv(BaseEnv):
             self,
             name,
             var=0.1,
-            vis=False):
-        super().__init__(name, var, vis)
+            vis=False,
+            record=False):
+        super().__init__(name, var, vis, record)
 
     def _torque_cost(self):
         torques = [abs(self.client.getJointState(self.robot_id, i)[3]) / 1500

@@ -6,8 +6,10 @@ from random import random, seed
 from datetime import datetime
 import numpy as np
 from numpy import float32, inf
+from src.environment.camera import Camera
 from src.environment.spaces import Box
 # from math import sin, cos, pi
+
 
 seed(datetime.now())
 
@@ -47,11 +49,17 @@ class BaseEnv:
             self,
             name,
             var=0.1,
-            vis=False):
+            vis=False,
+            record=False):
 
         import pybullet
         import pybullet_utils.bullet_client as bc
         import pybullet_data
+
+        self.camera = None
+        self.i = 0
+        if record:
+            self.camera = Camera(self)
 
         self.var = var
         self.vis = vis
@@ -141,13 +149,16 @@ class BaseEnv:
         state = self._get_state()
         self.last_state = state
         self.current_state = state
-
+        self.i = 0
         return state
 
     def take_action(self, actions):
         raise NotImplementedError()
 
     def step(self):
+        self.i += 1
+        if self.camera and self.i % self.camera.frame_step_rate == 0:
+            self.camera.take_image()
         self.client.stepSimulation()
 
     def get_state(self):
