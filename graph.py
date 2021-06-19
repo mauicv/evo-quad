@@ -28,9 +28,9 @@ if __name__ == '__main__':
             bests.append(generation['best_fitness'])
             # worsts.append(generation['worst_fitness'])
         # plt.plot(means)
-        moving_aves = moving_average(bests, 200)
-        # plt.plot(bests)
-        plt.plot(moving_aves)
+        # moving_aves = moving_average(bests, 200)
+        plt.plot(bests)
+        # plt.plot(moving_aves)
         # plt.plot(worsts)
         plt.show()
     else:

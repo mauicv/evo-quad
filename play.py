@@ -19,7 +19,7 @@ def play(model, steps=STEPS, record=False):
     i = 0
     while not done and i < steps:
         i += 1
-        time.sleep(0.007)
+        time.sleep(0.01)
         action = np.array(model(state))/INPUT_SCALING_VAL
         action = action_map(action)
         env.take_action(action)
