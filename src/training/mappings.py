@@ -1,9 +1,5 @@
 import numpy as np
-
-STATE_DIMS = 54
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
+from src.params import MIN_ACTION, MAX_ACTION
 
 ACTION_RANGE = (MAX_ACTION - MIN_ACTION) / 2
 

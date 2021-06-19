@@ -1,27 +1,11 @@
-from gerel.genome.factories import dense
-from gerel.model.model import Model
-from gerel.util.activations import build_leaky_relu, build_sigmoid
-# import click
-# import time
 from src.environment.walking_env import WalkingEnv
 from src.training.mappings import action_map
-# from gerel.genome.factories import dense, from_genes
+from src.params import STEPS, ENV_NAME
+from src.util import load_model
+# from src.util import get_model
+
 import matplotlib.pyplot as plt
-
-from gerel.util.datastore import DataStore
-from gerel.genome.factories import from_genes
-import os
-
 import numpy as np
-
-DIR = './data/default/'
-STATE_DIMS = 54
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
-LAYER_DIMS = [20, 20]
-ENV_NAME = 'walking-quadruped'
-STEPS = 100
 
 
 def get_state_set(steps=STEPS, model=None):
@@ -29,58 +13,31 @@ def get_state_set(steps=STEPS, model=None):
     state = env.current_state
     i = 0
     states = []
+    pre_actions = []
     actions = []
-    while i < STEPS:
+    while i < steps:
         i += 1
         action = model(state)
+        pre_actions.append(action)
         action = action_map(action)
         actions.append(action)
-        state, _, _, _ = env.step(action)
+        env.take_action(action)
+        env.step()
+        state, _, _, _ = env.get_state()
         states.append(state)
 
-    return states, actions
-
-
-def get_model():
-    genome = dense(
-        input_size=STATE_DIMS,
-        output_size=ACTION_DIMS,
-        layer_dims=LAYER_DIMS,
-        weight_low=-1,
-        weight_high=1,
-    )
-    sigmoid = build_sigmoid(c=10)
-    model = Model(genome.to_reduced_repr, activation=sigmoid)
-    return model
-
-
-def load_model():
-    generation = max([int(i) for i in os.listdir(DIR)])
-
-    ds = DataStore(name=DIR)
-    data = ds.load(generation)
-    nodes, edges = data['best_genome']
-    input_num = len([n for n in nodes if n[4] == 'input'])
-    output_num = len([n for n in nodes if n[4] == 'output'])
-    nodes = [n for n in nodes if n[4] == 'hidden']
-    genome = from_genes(
-        nodes, edges,
-        input_size=input_num,
-        output_size=output_num,
-        depth=len(LAYER_DIMS))
-    sigmoid = build_sigmoid(c=10)
-    return Model(genome.to_reduced_repr, activation=sigmoid)
+    return states, actions, pre_actions
 
 
 if __name__ == '__main__':
-    model = get_model()
-    # model = load_model()
-    states, actions = get_state_set(100, model)
+    # model = get_model()
+    model = load_model()
+    states, actions, pre_actions = get_state_set(500, model)
     states = np.array(states)
     actions = np.array(actions)
-
-    # for i in range(len(states[0])):
-    #     plt.plot(states[:, i], color='red')
+    pre_actions = np.array(pre_actions)
+    # for i in range(len(pre_actions[0])):
+    #     plt.plot(pre_actions[:, i], color='red')
 
     for i in range(len(actions[0])):
         plt.plot(actions[:, i], color='blue')

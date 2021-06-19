@@ -1,14 +1,12 @@
 
+# https://www.etedal.net/2020/04/pybullet-panda_2.html
+
 import numpy as np
 from src.environment.env import BaseEnv
+from src.params import REWARD_SCALE, TORQUE_COST, \
+    GROUND_CONTACT_COST, JOINT_AT_LIMIT_COST
 
-TARGET_LOC = np.array([0.0, 0.0, 0.18])
-TARGET_ORIENT = np.array([1, 1, 0])
-JOINT_AT_LIMIT_COST = 0.01
-TORQUE_COST = 0.4
-STEP_ACTION_RATE = 5
-REWARD_SCALE = 10
-GROUND_CONTACT_COST = 100
+TARGET_HEIGHT = 0.30487225144721647
 
 
 class WalkingEnv(BaseEnv):
@@ -16,22 +14,9 @@ class WalkingEnv(BaseEnv):
             self,
             name,
             var=0.1,
-            vis=False):
-        super().__init__(name, var, vis)
-
-    def _standing_reward(self):
-        """Dependent on base link difference from target location and
-        target orientation. If base link contacts ground 100 point penalty is
-        added and a small cost is added per unit of torque used.
-        """
-
-        base_data = self.client.getBasePositionAndOrientation(self.robot_id)
-        base_loc = np.array(base_data[0])
-        orient = np.array(self.client.getEulerFromQuaternion(base_data[1]))
-
-        dist_from_target = np.linalg.norm(base_loc - TARGET_LOC) \
-            + 6 * np.linalg.norm(orient * TARGET_ORIENT)
-        return REWARD_SCALE / max(dist_from_target, 0.01)
+            vis=False,
+            record=False):
+        super().__init__(name, var, vis, record)
 
     def _torque_cost(self):
         torques = [abs(self.client.getJointState(self.robot_id, i)[3]) / 1500
@@ -51,7 +36,6 @@ class WalkingEnv(BaseEnv):
     def _get_reward(self):
         costs = np.array([
             self._joints_at_limit_cost(),
-            # self._standing_reward(),
             self._progress_reward(),
             # self._torque_cost()
         ])
@@ -61,7 +45,8 @@ class WalkingEnv(BaseEnv):
 
     def _progress_reward(self):
         forwards_movement = self.current_state[1] - self.last_state[1]
-        return forwards_movement * REWARD_SCALE
+        vertical_movement = 4 * abs(self.current_state[2] - TARGET_HEIGHT) ** 2
+        return forwards_movement * REWARD_SCALE - vertical_movement
 
     def _joints_at_limit_cost(self):
         count = 0
@@ -75,12 +60,12 @@ class WalkingEnv(BaseEnv):
         return - count * JOINT_AT_LIMIT_COST
 
     def take_action(self, actions):
+        self.last_state = self.current_state
         for joint_i, action in zip(self.action_set, actions):
             # restrict joints.
             if joint_i in self.hip_joints or joint_i in self.knee_joints:
-                maxForce = 175
                 self.client.setJointMotorControl2(
                     self.robot_id, joint_i,
-                    controlMode=self.client.POSITION_CONTROL,
-                    targetPosition=action,
-                    force=maxForce)
+                    controlMode=self.client.VELOCITY_CONTROL,
+                    targetVelocity=action * 15,
+                    force=15)

@@ -13,21 +13,13 @@ from gerel.populations.genome_seeders import curry_genome_seeder
 from gerel.genome.factories import dense, from_genes
 from gerel.util.datastore import DataStore
 from gerel.model.model import Model
-from gerel.util.activations import build_leaky_relu, build_sigmoid
 
 from src.training.batch import BatchJob
 from src.training.stream_redirect import RedirectAllOutput
 from src.training.mappings import action_map
-
-ENV_NAME = 'walking-quadruped'
-EPISODES = 10000
-STATE_DIMS = 27
-ACTION_DIMS = 12
-MIN_ACTION = -0.785398
-MAX_ACTION = 0.785398
-STEPS = 500
-LAYER_DIMS = [20, 20]
-BATCH_SIZE = 30
+from src.params import ENV_NAME, STEPS, LAYER_DIMS, EPISODES, STATE_DIMS, \
+    ACTION_DIMS, BATCH_SIZE, POPULATION_SIZE, STD_DEV, ALPHA, WEIGHT_LOW, \
+    WEIGHT_HIGH, INPUT_SCALING_VAL
 
 batch_job = BatchJob()
 
@@ -38,8 +30,7 @@ def compute_fitness(genomes):
             RedirectAllOutput(sys.stderr, file=os.devnull):
         envs = [WalkingEnv(ENV_NAME, var=0, vis=False)
                 for _ in range(len(genomes))]
-        sigmoid = build_sigmoid(c=10)
-        models = [Model(genome, activation=sigmoid) for genome in genomes]
+        models = [Model(genome) for genome in genomes]
         dones = [False for _ in range(len(genomes))]
         states = [np.array(env.current_state, dtype='float32') for env in envs]
         rewards = [0 for _ in range(len(genomes))]
@@ -48,10 +39,11 @@ def compute_fitness(genomes):
                     enumerate(zip(models, envs, dones, states)):
                 if done:
                     continue
-
-                action = np.array(model(state))/6
+                action = np.array(model(state))/INPUT_SCALING_VAL
                 action = action_map(action)
-                next_state, reward, done, _ = env.step(action)
+                env.take_action(action)
+                env.step()
+                next_state, reward, done, _ = env.get_state()
                 rewards[index] += reward
                 dones[index] = done
                 states[index] = next_state
@@ -115,8 +107,8 @@ def train_walk(dir):
             input_size=STATE_DIMS,
             output_size=ACTION_DIMS,
             layer_dims=LAYER_DIMS,
-            weight_low=-2,
-            weight_high=2
+            weight_low=WEIGHT_LOW,
+            weight_high=WEIGHT_HIGH
         )
         print(f'seeding generation 0, with  genome: {genome}')
 
@@ -124,8 +116,8 @@ def train_walk(dir):
 
     mutator = RESMutator(
         initial_mu=init_mu,
-        std_dev=1.5,
-        alpha=1
+        std_dev=STD_DEV,
+        alpha=ALPHA
     )
 
     seeder = curry_genome_seeder(
@@ -134,12 +126,14 @@ def train_walk(dir):
     )
 
     population = RESPopulation(
-        population_size=300,
+        population_size=POPULATION_SIZE,
         genome_seeder=seeder
     )
 
-    print('population size = 250')
-    print('population type = RESPopulation')
+    print('population size:', POPULATION_SIZE)
+    print('population type: RESPopulation')
+    print('STD_DEV:', STD_DEV)
+    print('ALPHA:', ALPHA)
     print('mutator type = RESMutator')
     print('num episodes:', EPISODES)
     print('num steps:', STEPS)

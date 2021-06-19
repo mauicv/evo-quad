@@ -1,23 +1,17 @@
 # https://github.com/openai/gym/issues/585#issuecomment-370015441
+# https://github.com/bulletphysics/bullet3/blob/5ae9a15ecac7bc7e71f1ec1b544a55135d7d7e32/examples/pybullet/gym/pybullet_envs/robot_locomotors.py#L30
 
 
 from random import random, seed
 from datetime import datetime
 import numpy as np
 from numpy import float32, inf
+from src.environment.camera import Camera
 from src.environment.spaces import Box
-from math import sin, cos, pi
+# from math import sin, cos, pi
+
 
 seed(datetime.now())
-
-TARGET_LOC = np.array([0.0, 0.0, 0.18])
-TARGET_ORIENT = np.array([1, 1, 0])
-JOINT_AT_LIMIT_COST = 0.1
-TORQUE_COST = 0.4
-STEP_ACTION_RATE = 5
-REWARD_SCALE = 10
-GROUND_CONTACT_COST = 100
-OSC_PERIOD = 200
 
 A_JOINTS = {
     b'core_left_shoulder',
@@ -41,10 +35,13 @@ C_JOINTS = {
 }
 
 JOINTS = {*A_JOINTS, *B_JOINTS, *C_JOINTS}
-# b'left_leg_bottom_left_foot',
-# b'right_leg_bottom_right_foot',
-# b'back_left_leg_bottom_back_left_foot',
-# b'back_right_leg_bottom_back_right_foot'
+
+FEET = {
+    b'left_leg_bottom_left_foot',
+    b'right_leg_bottom_right_foot',
+    b'back_left_leg_bottom_back_left_foot',
+    b'back_right_leg_bottom_back_right_foot'
+}
 
 
 class BaseEnv:
@@ -52,11 +49,17 @@ class BaseEnv:
             self,
             name,
             var=0.1,
-            vis=False):
+            vis=False,
+            record=False):
 
         import pybullet
         import pybullet_utils.bullet_client as bc
         import pybullet_data
+
+        self.camera = None
+        self.i = 0
+        if record:
+            self.camera = Camera(self)
 
         self.var = var
         self.vis = vis
@@ -66,7 +69,6 @@ class BaseEnv:
         self.client = bc.BulletClient(connection_mode=pybullet.GUI) if vis \
             else bc.BulletClient(connection_mode=pybullet.DIRECT)
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
-        self.i = 0
         self.reset()
         self.describe_space()
 
@@ -113,9 +115,6 @@ class BaseEnv:
             [0, 0, 0],
             slope)
 
-        # self.client.changeDynamics(
-        #     self.plane_id, -1, lateralFriction=1, restitution=0)
-
         robot_start_pos = [0, 0, 0.4]
         robot_start_orientation = self.client.getQuaternionFromEuler([0, 0, 0])
         self.robot_id = self.client.loadURDF(
@@ -130,6 +129,16 @@ class BaseEnv:
             joint_data = self.client.getJointInfo(self.robot_id, joint_i)
             self.joints[joint_data[1]] = joint_data[0]
 
+        for foot in FEET:
+            self.client.changeDynamics(
+                self.robot_id,
+                self.joints[foot],
+                lateralFriction=1.25,
+                spinningFriction=1,
+                rollingFriction=1,
+                restitution=0
+            )
+
         self.shoulder_joints = set(self.joints[name] for name in A_JOINTS)
         self.hip_joints = set(self.joints[name] for name in B_JOINTS)
         self.knee_joints = set(self.joints[name] for name in C_JOINTS)
@@ -140,26 +149,19 @@ class BaseEnv:
         state = self._get_state()
         self.last_state = state
         self.current_state = state
-
-        # self.client.changeDynamics(
-        #     self.robot_id, -1, lateralFriction=1, restitution=0)
+        self.i = 0
         return state
 
     def take_action(self, actions):
-        for joint_i, action in zip(self.action_set, actions):
-            maxForce = 500
-            self.client.setJointMotorControl2(
-                self.robot_id, joint_i,
-                controlMode=self.client.POSITION_CONTROL,
-                targetPosition=action,
-                force=maxForce)
+        raise NotImplementedError()
 
-    def step(self, actions):
+    def step(self):
         self.i += 1
-        self.last_state = self.current_state
-        for _ in range(STEP_ACTION_RATE):
-            self.take_action(actions)
+        if self.camera and self.i % self.camera.frame_step_rate == 0:
+            self.camera.take_image()
         self.client.stepSimulation()
+
+    def get_state(self):
         # note _get_state must happen before _get_reward or _get_reward
         # will return nonsense!
         self.current_state = self._get_state()
@@ -169,17 +171,14 @@ class BaseEnv:
     def _get_state(self):
         base_link_pos, base_link_orient = self.client \
             .getBasePositionAndOrientation(self.robot_id)
+        joint_states = [self.client.getJointState(self.robot_id, i)[0:2]
+                        for i in self.action_set]
+        joint_states = [state for joint_state in joint_states
+                        for state in joint_state]
         state = np.array([
             *base_link_pos,
             *base_link_orient,
-            sin(self.i*2*pi/OSC_PERIOD)*10,
-            cos(self.i*2*pi/OSC_PERIOD)*10,
-            sin(self.i*2*pi/OSC_PERIOD*2)*10,
-            cos(self.i*2*pi/OSC_PERIOD*2)*10,
-            sin(self.i*2*pi/OSC_PERIOD*4)*10,
-            cos(self.i*2*pi/OSC_PERIOD*4)*10,
-            *[self.client.getJointState(self.robot_id, i)[0]
-              for i in self.action_set],
+            *joint_states
         ])
         return state
 
